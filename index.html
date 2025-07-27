@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Land Area Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+    h2 { color: #2d6a4f; }
+    label, input, select, button {
+      display: block;
+      margin: 10px 0;
+      width: 100%;
+    }
+    input {
+      padding: 5px;
+    }
+    button {
+      padding: 10px;
+      background-color: #40916c;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button.reset {
+      background-color: #b91c1c;
+      margin-top: -5px;
+    }
+    .output {
+      margin-top: 20px;
+      background-color: #f1f1f1;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .notification {
+      margin-top: 10px;
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Land Unit Converter (Standard ↔ Regional)</h2>
+
+  <label for="system">Select Conversion Type:</label>
+  <select id="system" onchange="updateLabels()">
+    <option value="standard_to_regional">Standard → Koraibari</option>
+    <option value="regional_to_standard">Koraibari → Standard</option>
+  </select>
+
+  <label id="label-b">Bigha:</label>
+  <input type="number" id="bigha" placeholder="Enter Bigha" />
+
+  <label id="label-k">Katha:</label>
+  <input type="number" id="katha" placeholder="Enter Katha" />
+
+  <label id="label-l">Lesa:</label>
+  <input type="number" id="lesa" placeholder="Enter Value" />
+
+  <button onclick="convertLand()">Convert</button>
+  <button class="reset" onclick="resetFields()">Reset</button>
+
+  <div class="notification" id="notification"></div>
+  <div class="output" id="result"></div>
+
+  <script>
+    function updateLabels() {
+      const mode = document.getElementById("system").value;
+      const lLabel = document.getElementById("label-l");
+
+      if (mode === "standard_to_regional") {
+        lLabel.innerText = "Lesa:";
+      } else {
+        lLabel.innerText = "Doul:";
+      }
+    }
+
+    function convertLand() {
+      const system = document.getElementById("system").value;
+      let b = parseFloat(document.getElementById("bigha").value) || 0;
+      let k = parseFloat(document.getElementById("katha").value) || 0;
+      let l = parseFloat(document.getElementById("lesa").value) || 0;
+
+      let totalSqFt = 0;
+      let resultText = "";
+
+      if (system === "standard_to_regional") {
+        totalSqFt = (b * 14400) + (k * 2880) + (l * 144);
+
+        const regB = Math.floor(totalSqFt / 27225);
+        totalSqFt -= regB * 27225;
+
+        const regK = Math.floor(totalSqFt / 1361.25);
+        totalSqFt -= regK * 1361.25;
+
+        const regD = (totalSqFt / 68.0625);
+
+        resultText = `${b} Bigha ${k} Katha ${l} Lesa (Standard) =<br><strong>${regB} Bigha, ${regK} Katha, ${regD.toFixed(2)} Doul</strong> (Koraibari)`;
+      } else {
+        totalSqFt = (b * 27225) + (k * 1361.25) + (l * 68.0625);
+
+        const stdB = Math.floor(totalSqFt / 14400);
+        totalSqFt -= stdB * 14400;
+
+        const stdK = Math.floor(totalSqFt / 2880);
+        totalSqFt -= stdK * 2880;
+
+        const stdL = (totalSqFt / 144);
+
+        resultText = `${b} Bigha ${k} Katha ${l} Doul (Koraibari) =<br><strong>${stdB} Bigha, ${stdK} Katha, ${stdL.toFixed(2)} Lesa</strong> (Standard)`;
+      }
+
+      document.getElementById("result").innerHTML = resultText;
+
+      // Show a notification
+      document.getElementById("notification").innerText = "✅ Conversion completed, here is your result!";
+      setTimeout(() => {
+        document.getElementById("notification").innerText = "";
+      }, 3000);
+    }
+
+    function resetFields() {
+      document.getElementById("bigha").value = "";
+      document.getElementById("katha").value = "";
+      document.getElementById("lesa").value = "";
+      document.getElementById("result").innerHTML = "";
+      document.getElementById("notification").innerText = "";
+    }
+
+    // Set correct label when the page loads
+    updateLabels();
+  </script>
+</body>
+</html>
